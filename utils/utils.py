@@ -3,6 +3,7 @@ import torch
 import random 
 import logging
 import numpy as np
+from typing import Union, List
 import torch.distributed as dist 
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.distributed import DistributedSampler
@@ -209,3 +210,25 @@ def to_device(inputs, device):
 
 def cleanup():
     dist.destroy_process_group()
+
+
+def convert_triples_to_sentences(triples: Union[str, List[str]]) -> Union[str, List[str]]:
+
+    return_str = False
+    if isinstance(triples, str):
+        triples = [triples]
+        return_str = True
+
+    triples = [triple.replace("<", "").replace(">", "").replace(";", "", 2) for triple in triples]
+    if return_str:
+        return triples[0]
+    else:
+        return triples
+    
+def get_global_tensors(local_rank, world_size, tensor):
+    # 聚合不同卡上的tensor，默认在第0维度进行 concat
+    if local_rank < 0:
+        return tensor
+    global_tensor_list = get_global_tensor_list(local_rank, world_size, tensor)
+    global_tensor = torch.cat(global_tensor_list, dim=0)
+    return global_tensor

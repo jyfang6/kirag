@@ -1,5 +1,6 @@
 nltk 
 dill
+wandb 
 base58
 --extra-index-url https://download.pytorch.org/whl/cu118
 torch==2.2.1 

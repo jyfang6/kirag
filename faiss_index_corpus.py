@@ -41,8 +41,8 @@ def build_faiss_index(args):
                 break 
 
     for embedding_file, passage_id_file in tqdm(embedding_passage_id_files, desc="Build Index", total=len(embedding_passage_id_files)):
-        embeddings = pickle.load(open(os.path.join(args.index_folder, embedding_file), "rb"))
-        passage_ids = pickle.load(open(os.path.join(args.index_folder, passage_id_file), "rb"))
+        embeddings = pickle.load(open(embedding_file, "rb"))
+        passage_ids = pickle.load(open(passage_id_file, "rb"))
         indexer.index_data(passage_ids, embeddings.cpu().numpy())
             
     logger.info(f"Saving index to {args.index_folder} ... ")

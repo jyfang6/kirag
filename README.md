@@ -51,7 +51,7 @@ Before retrieving relevant documents, we first need to build indices for the doc
 Run the following command to build corpus index for dense retrieval: 
 ```bash
 # calculate corpus embeddings 
-python -m doc_embeddings \
+python -m compute_corpus_embeddings \
     --corpus 2wikimultihopqa \
     --retriever_name E5Retriever \
     --save_dir checkpoint \
@@ -65,9 +65,27 @@ python -m faiss_index_corpus \
 ```
 Note that you should update the value of `CORPUS_PATH` in `dataset/corpus.py` to specify the file path of each corpus. The corpus index will be saved to `save_dir/name/index_folder` folder.  
 
-### 2. Knowledge Triple Extraction
+### 2. [Optional] Knowledge Triple Extraction
+Use the following command to extract knowledge triples for all the documents within a corpus:
+```bash 
+python -m construct_kg_corpus \
+    --hf_token huggingface_token \
+    --dataset 2wikimultihopqa \
+    --cached_kg_triples_file checkpoint/kg_corpus/musique/cached_kg_corpus.pkl 
+```
+Extracting knowledge triples for all the documents can take a long time. We provide the pre-built KG corpus for the HotPotQA, 2WikiMultiHopQA and MuSiQue datasets, which can be downloaded from the `kg_corpus` folder at [here](https://osf.io/qw594/files/osfstorage).
 
+## Training
+In KiRAG, the Reasoning Chain Aligner requires training to better identify candidate knowledge triples that can fill the information gaps in the reasoning process. We provide the training and development data at [here](https://osf.io/qw594/files/osfstorage). 
 
-## Training 
+Run the following command to train the Reasoning Chain Aligner: 
+```bash
+python -m torch.distributed.launch --nproc_per_node 2 -m train_aligner \
+    --data_folders data/hotpotqa/open_domain_data data/2wikimultihopqa/open_domain_data data/musique/open_domain_data \
+    --backbone E5Retriever \
+    --backbone_model_name intfloat/e5-large-v2 \
+    --save_dir checkpoint \
+    --name trained_reasoning_chain_aligner 
+```
 
 ## Evaluation 

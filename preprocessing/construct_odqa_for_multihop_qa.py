@@ -1,5 +1,6 @@
 import os 
 import nltk 
+import pickle
 import argparse
 from tqdm import tqdm 
 from collections import OrderedDict
@@ -28,9 +29,9 @@ LOAD_DATA_FOLDER = {
 
 SAVE_DATA_FOLDER = {
     "hotpotqa": "/nfs/common/data/hotpotqa/open_domain_data", 
-    "2wikimultihopqa": "/nfs/common/data/2wikimultihopqa/open_domain", 
-    "musique": "/nfs/common/data/musique/open_domain_data_github", 
-    "webqa": "/nfs/common/data/webqa/open_domain_data_github", 
+    "2wikimultihopqa": "/nfs/common/data/2wikimultihopqa/open_domain_data", 
+    "musique": "/nfs/common/data/musique/open_domain_data", 
+    "webqa": "/nfs/common/data/webqa/open_domain_data", 
     "bamboogle": "/nfs/common/data/bamboogle/open_domain_data", 
 }
 
@@ -374,6 +375,45 @@ PROCESS_MAP = {
 }
 
 
+def load_hotpotqa_is_comparision_map():
+
+    data_folder = LOAD_DATA_FOLDER["hotpotqa"]
+    raw_data_files = [
+        os.path.join(data_folder, "hotpot_train_v1.1.json"),
+        os.path.join(data_folder, "hotpot_dev_distractor_v1.json")
+    ]
+    question_id_to_is_comparison_map = {}
+    for file in raw_data_files:
+        data = load_json(file)
+        for example in data:
+            qid = example["_id"]
+            question_type = example["type"]
+            if question_type == "comparison":
+                question_id_to_is_comparison_map[qid] = True 
+            else:
+                question_id_to_is_comparison_map[qid] = False 
+    return question_id_to_is_comparison_map
+
+def load_2wikimultihopqa_is_comparison_map():
+    
+    data_folder = LOAD_DATA_FOLDER["2wikimultihopqa"]
+    raw_data_files = [
+        os.path.join(data_folder, "train.json"),
+        os.path.join(data_folder, "dev.json")
+    ]
+    question_id_to_is_comparison_map = {}
+    for file in raw_data_files:
+        data = load_json(file)
+        for example in data:
+            qid = example["_id"]
+            question_type = example["type"]
+            if question_type == "comparison":
+                question_id_to_is_comparison_map[qid] = True 
+            else:
+                question_id_to_is_comparison_map[qid] = False 
+    return question_id_to_is_comparison_map
+
+
 def construct_open_domain_data(args):
 
     dataset = args.dataset
@@ -391,6 +431,13 @@ def construct_open_domain_data(args):
     save_json(dev, os.path.join(save_data_folder, "dev_qa_pairs.json"))
     save_json(test, os.path.join(save_data_folder, "test_qa_pairs.json"))
     save_json(corpus, os.path.join(save_data_folder, "corpus.json"))
+
+    if args.dataset == "hotpotqa":
+        mapping = load_hotpotqa_is_comparision_map()
+        pickle.dump(mapping, open(os.path.join(save_data_folder, "is_comparison_map.pkl"), "wb"))
+    if args.dataset == "2wikimultihopqa":
+        mapping = load_2wikimultihopqa_is_comparison_map()
+        pickle.dump(mapping, open(os.path.join(save_data_folder, "is_comparison_map.pkl"), "wb"))
 
 
 if __name__ == "__main__":
