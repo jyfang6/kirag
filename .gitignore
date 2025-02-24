@@ -115,4 +115,6 @@ ENV/
 outputs/
 debug/
 debug*.py
+checkpoint/
+checkpoints/
 
