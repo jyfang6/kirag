@@ -1,4 +1,5 @@
 import torch
+from copy import deepcopy
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
@@ -74,3 +75,12 @@ def load_llm_tokenizer_and_model(model_name, hf_token, padding_side="left", dtyp
     model.eval()
 
     return tokenizer, model 
+
+def get_retrieved_documents(retrieved_documents_ids_to_scores, corpus_dataset):
+    ranked_retrieved_documents_ids_with_scores = sorted(retrieved_documents_ids_to_scores.items(), key=lambda x: x[1], reverse=True)
+    retrieved_documents = [] 
+    for docid, score in ranked_retrieved_documents_ids_with_scores:
+        doc = deepcopy(corpus_dataset.get_document(docid))
+        doc["score"] = float(score)
+        retrieved_documents.append(doc)
+    return retrieved_documents

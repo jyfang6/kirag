@@ -15,7 +15,7 @@ def setup_parser():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--index_name", type=str, default="ip_indexer")
     parser.add_argument("--index_folder", type=str, default=None)
-    parser.add_argument("--embedding_size", type=int, default=768)
+    parser.add_argument("--embedding_size", type=int, default=1024)
     args = parser.parse_args()
 
     return args 

@@ -63,7 +63,10 @@ python -m faiss_index_corpus \
     --index_folder checkpoint/e5_retriever/2wikimultihopqa \
     --embedding_size 1024
 ```
-Note that you should update the value of `CORPUS_PATH` in `dataset/corpus.py` to specify the file path of each corpus. The corpus index will be saved to `save_dir/name/index_folder` folder.  
+- `corpus`: specifies the name of the corpus. Note that you should update the value of `CORPUS_PATH` in `dataset/corpus.py` to specify the file path of each corpus.
+- `retriever_name`: specifies the retriever model. It can be set as `E5Retriever` or `BGERetriever`. 
+
+ The corpus index will be saved to `save_dir/name/index_folder` folder.  
 
 ### 2. [Optional] Knowledge Triple Extraction
 Use the following command to extract knowledge triples for all the documents within a corpus:
@@ -76,7 +79,7 @@ python -m construct_kg_corpus \
 Extracting knowledge triples for all the documents can take a long time. We provide the pre-built KG corpus for the HotPotQA, 2WikiMultiHopQA and MuSiQue datasets, which can be downloaded from the `kg_corpus` folder at [here](https://osf.io/qw594/files/osfstorage).
 
 ## Training
-In KiRAG, the Reasoning Chain Aligner requires training to better identify candidate knowledge triples that can fill the information gaps in the reasoning process. We provide the training and development data at [here](https://osf.io/qw594/files/osfstorage). 
+In KiRAG, the Reasoning Chain Aligner requires training to better identify candidate knowledge triples that can fill the information gaps in reasoning process. We provide the training and development data at [here](https://osf.io/qw594/files/osfstorage). 
 
 Run the following command to train the Reasoning Chain Aligner: 
 ```bash
@@ -88,4 +91,55 @@ python -m torch.distributed.launch --nproc_per_node 2 -m train_aligner \
     --name trained_reasoning_chain_aligner 
 ```
 
+- `data_folders` specifies the folders of training and development data. Each folder should have `train_aligner.json` and `dev_aligner.json`, which can be downloaded at [here](https://osf.io/qw594/files/osfstorage). 
+- `backbone` specifies the initialisation of the Aligner model. It can be set as `E5Retriever`, which uses E5 to initialise the Aligner, or `BGERetriever`, which use BGE to initialise the Aligner. 
+
+The checkpoint will be saved to `save_dir/name` folder. 
+
 ## Evaluation 
+
+### 1. Retrieval
+Run the following command to retrieve relevant documents using KiRAG: 
+```bash
+python -m retrieve \
+    --dataset 2wikimultihopqa \
+    --query_file data/2wikimultihopqa/open_domain_data/dev_qa_pairs.json  \
+    --corpus 2wikimultihopqa \
+    --index_folder checkpoint/e5_retriever/2wikimultihopqa \
+    --embedding_size 1024 \
+    --retriever_name E5Retriever \
+    --hf_token huggingface_token \
+    --llm llama3 \
+    --aligner_model e5 \
+    --aligner_model_name_or_path /path/to/reasoning_chain_aligner \
+    --cached_kg_triples_file /path/to/cached_kg_corpus \
+    --save_dir checkpoint \
+    --name e5_retriever \
+    --save_file dev_2wikimultihopqa_retrieval_results.json
+```
+- `retriever_name`: default is `E5Retriever`. If you change to `BGERetriever`, you should change `--retriever_model_name_or_path` and `--tokenizer_name_or_path` accordingly. 
+
+- `llm`: specifies the LLM used in the reasonign chain constructor. 
+
+- `cached_kg_triples_file (optional)`: If provided, the KG generator will load and save extracted knowledge triples in this file. 
+
+The retrieval results will be saved to `save_dir/name/save_file`. 
+
+### 2. Evaluate Retrieval Performance 
+Run the following command to evaluate the retrieval performance: 
+```bash 
+python -m evaluation.retrieval_eval \
+    --dataset 2wikimultihopqa \
+    --save_file checkpoint/e5_retriever/dev_2wikimultihopqa_retrieval_results.json \
+    --qrels data/2wikimultihopqa/open_domain_data/qrels.tsv \
+    --k 3 
+```
+
+### 3. Evaluate QA Performance 
+Run the following command to evaluate the QA performance: 
+```bash
+python -m evaluation.qa_eval \
+    --hf_token huggingface_token \
+    --save_file checkpoint/e5_retriever/dev_2wikimultihopqa_retrieval_results.json \
+    --k 3
+```

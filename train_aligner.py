@@ -1,21 +1,16 @@
 import os
-import glob 
-import pickle
 import logging
 import argparse
-import numpy as np
 import torch.distributed as dist
 from transformers import AutoTokenizer 
 
 from utils.utils import (
     cleanup,
-    to_device, 
     gpu_setup,
     setup_logger,
     get_dataloader,
-    get_global_tensor_list_to_main_process
 )
-from utils.const import COLLATOR_MAP, CORPUS_MAP
+from utils.const import COLLATOR_MAP
 from retriever.retrievers import InBatchRetriever
 from dataset.datasets import KGChainRetrieverSeqSampleDataset
 from trainer.aligner_trainer import AlignerTrainer
