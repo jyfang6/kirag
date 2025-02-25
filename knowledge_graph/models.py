@@ -1,4 +1,5 @@
 import re 
+import nltk
 import numpy as np
 from nltk.tokenize import sent_tokenize
 from typing import Union, Optional, Tuple, List, Dict
@@ -21,6 +22,12 @@ from knowledge_graph.kg_generator import KGGenerator
 from retriever.retrievers import BaseRetriever, DenseRetriever
 from utils.utils import hash_object
 from evaluation.metrics import f1_score
+
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    print("Downloading 'punkt_tab' tokenizer...")
+    nltk.download('punkt_tab')
 
 
 class TripleSelector(nn.Module):

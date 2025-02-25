@@ -14,45 +14,15 @@ data/
 │   │   ├── test_qa_pairs.json
 │   │   ├── corpus.json
 │   │   ├── qrels.json
-│
-│── 2wikimultihopqa/
-│   ├── raw_data/
-│   │   ├── train.json
-│   │   ├── dev.json
-│   │   ├── test.json
-│   ├── open_domain_data/
-│   │   ├── train_qa_pairs.json
-│   │   ├── dev_qa_pairs.json
-│   │   ├── test_qa_pairs.json
-│   │   ├── corpus.json
-│   │   ├── qrels.json
-|
-│── musique/
-│   ├── raw_data/
-│   │   ├── musique_ans_v1.0_train.jsonl
-│   │   ├── musique_ans_v1.0_dev.jsonl
-│   │   ├── musique_ans_v1.0_test.jsonl
-│   ├── open_domain_data/
-│   │   ├── train_qa_pairs.json
-│   │   ├── dev_qa_pairs.json
-│   │   ├── test_qa_pairs.json
-│   │   ├── corpus.json
-│   │   ├── qrels.json
-|
-│── bamboogle/
-│   ├── raw_data/
-│   │   ├── Bamboogle_Prerelease.tsv
-│   ├── open_domain_data/
-│   │   ├── test_qa_pairs.json
-|
-│── webqa/
-│   ├── raw_data/
-│   │   ├── webquestions-test.qa.csv
-│   ├── open_domain_data/
-│   │   ├── test_qa_pairs.json
-|
-│── wikipedia/
-│   ├── psgs_w100.tsv
 ```
 
-For datasets with public test sets (Bamboogle, WebQA and NQ), we report performance on their full test set. For datasets with non-public test sets (HotPotQA, 2WikiMultiHopQA, MuSiQue), we use their full development set as test sets and randomly sample 500 examples from their training set as development sets. 
+## Preprocessing Steps 
+
+### HotPotQA 
+For HotPotQA dataset, we use the [corpus](https://nlp.stanford.edu/projects/hotpotqa/enwiki-20171001-pages-meta-current-withlinks-processed.tar.bz2) released alongside the dataset for retrieval. Since the test set is non-public, we use its full development set as test set. Moreover, we randomly sample 500 questions from its original training set as development set and use the rest as training set. 
+
+### 2WikiMultiHopQA and MuSiQue
+We follow the procedure in [IRCoT](https://arxiv.org/abs/2212.10509) to construct retrieval corpus for these two datasets, where we combine all the paragraphs for all questions in the training, development and test sets. Similar to HotPotQA, we also use their original development sets as test sets and randomly sample 500 questions from their original training sets as development sets. 
+
+### Bamboogle, WebQA and NQ 
+For these datasets, we only use their test tests for evaluation. We use the Wikipedia dump released by DPR as the retrieval corpus. 

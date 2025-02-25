@@ -1,5 +1,6 @@
 import os
 import re 
+import nltk
 import pickle
 import numpy as np
 from copy import deepcopy 
@@ -16,6 +17,12 @@ hf_logging.set_verbosity_error()
 
 from utils.utils import to_device
 from retriever.e5 import get_e5_embeddings_for_document
+
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    print("Downloading 'punkt_tab' tokenizer...")
+    nltk.download('punkt_tab')
 
 
 class KGGenerator(nn.Module):
