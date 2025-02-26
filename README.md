@@ -4,7 +4,7 @@
 
 This repository contains the implementation of KiRAG framework, which leverages a knowledge-driven iterative retriever model to enhance the retrieval process of iterative RAG (iRAG) models.
 
-Details about KiRAG can be found in our paper.  
+Details about KiRAG can be found in our [paper](https://arxiv.org/abs/2502.18397).
 
 ## Introduction
 KiRAG employs a knowledge triple-guided iterative retrieval process to retrieve relevant documents for questions that require multi-step reasoning. Specifically, KiRAG decomposes documents into knowledge triples and performs iterative retrieval with these triples to enable a factually reliable retrieval process. Moreover, KiRAG integrates reasoning into the retrieval process to dynamically identify and retrieve knowledge that bridges information gaps, effectively adapting to the evolving information needs. Empirical results show that KiRAG significantly outperforms existing iRAG models, with an average improvement of 9.40% in R@3 and 5.14% in F1 on multi-hop QA. 
